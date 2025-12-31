@@ -22,6 +22,11 @@
       "value": true
     },
     {
+      "name": "initDate",
+      "value": "project",
+      "description": "The initial date shown in the Gantt. Can be either 'today' or 'project'"
+    },
+    {
       "name": "showButtons",
       "value": true
     },
@@ -36,32 +41,65 @@
     },
     {
       "name": "initPhaseState",
-      "value": "open",
-      "description": "open or close"
+      "value": "openRows",
+      "description": "openRows or closeRows"
+    },
+    {
+      "name": "initColumnState",
+      "value": "openColumns",
+      "description": "openColumns or closeColumns"
     },
     {
       "name": "textColour",
       "value": "#666666"
     },
     {
-      "name": "coloursDark",
-      "value": [
-        "#377eb9",
-        "#4db04a",
-        "#974ea2",
-        "#ff8000",
-        "#e61a1d"
-      ]
+      "name": "colours",
+      "value": {
+        "dark": [
+          "#377eb9",
+          "#4db04a",
+          "#974ea2",
+          "#ff8000",
+          "#e61a1d"
+        ],
+        "light": [
+          "#a5c8e4",
+          "#b5dfb3",
+          "#d3b0d9",
+          "#ffcc99",
+          "#f5a3a5"
+        ]
+      }
     },
     {
-      "name": "coloursLight",
-      "value": [
-        "#a5c8e4",
-        "#b5dfb3",
-        "#d3b0d9",
-        "#ffcc99",
-        "#f5a3a5"
-      ]
+      "name": "statusColumn",
+      "value": {
+        "domain": [
+          "Low",
+          "Medium",
+          "High",
+          "Very High"
+        ],
+        "range": [
+          "L",
+          "M",
+          "H",
+          "VH"
+        ],
+        "font": [
+          "#43864d",
+          "#af7a37",
+          "#ad622c",
+          "#b73133"
+        ],
+        "background": [
+          "#c6efce",
+          "#ffeb9c",
+          "#f8cbad",
+          "#ffbfc1"
+        ]
+      }
     },
     {
       "name": "yRowHeight",
@@ -75,39 +113,47 @@
     },
     {
       "name": "yPaddingInner",
-      "update": "yRowPadding * yRowHeight"
+      "init": "yRowPadding * yRowHeight"
     },
     {
       "name": "taskColumnWidth",
-      "value": 155
+      "init": "155+columnPadding"
     },
     {
       "name": "startColumnWidth",
-      "value": 45
+      "init": "45+columnPadding"
     },
     {
       "name": "endColumnWidth",
-      "value": 45
+      "init": "45+columnPadding"
     },
     {
       "name": "daysColumnWidth",
-      "value": 35
+      "init": "35+columnPadding"
+    },
+    {
+      "name": "statusColumnWidth",
+      "init": "statusColumnPresent?47+columnPadding:0"
     },
     {
       "name": "progressColumnWidth",
-      "value": 55
+      "init": "55+columnPadding"
     },
     {
       "name": "columnPadding",
       "value": 15
     },
     {
+      "name": "statusColumnPresent",
+      "init": "data('dataset')[0]['status']!=null"
+    },
+    {
       "name": "oneDay",
-      "update": "1000*60*60*24"
+      "init": "1000*60*60*24"
     },
     {
       "name": "timeoffset",
-      "update": "timezoneoffset(data('dataset')[0]['start']) * 60 *1000"
+      "init": "timezoneoffset(data('dataset')[0]['start']) * 60 *1000"
     },
     {
       "name": "dayBandwidth",
@@ -139,7 +185,7 @@
     },
     {
       "name": "phaseSymbolHeight",
-      "update": "bandwidth('y')-yPaddingInner-5"
+      "init": "bandwidth('y')-yPaddingInner-5"
     },
     {
       "name": "phaseSymbolWidth",
@@ -147,7 +193,7 @@
     },
     {
       "name": "columnsWidth",
-      "update": "taskColumnWidth+startColumnWidth+endColumnWidth+daysColumnWidth+progressColumnWidth+(columnPadding*5)"
+      "update": "!showColumns?taskColumnWidth: taskColumnWidth+startColumnWidth+endColumnWidth+daysColumnWidth+statusColumnWidth+progressColumnWidth"
     },
     {
       "name": "ganttWidth",
@@ -155,19 +201,19 @@
     },
     {
       "name": "dayExt",
-      "update": "[data('xExt')[0]['s']-oneDay,data('xExt')[0]['s']+ ((ganttWidth-minDayBandwidth)/minDayBandwidth)*oneDay]"
+      "init": "initDate=='project'? [data('xExt')[0]['s']-oneDay,data('xExt')[0]['s']+ ((ganttWidth-minDayBandwidth)/minDayBandwidth)*oneDay]:[today-oneDay,today+ ((ganttWidth-minDayBandwidth)/minDayBandwidth)*oneDay]"
     },
     {
       "name": "monthExt",
-      "update": "[data('xExt')[0]['s']-oneDay ,data('xExt')[0]['s'] + ganttWidth/2*oneDay]"
+      "init": "initDate=='project'? [data('xExt')[0]['s']-oneDay ,data('xExt')[0]['s'] + ganttWidth/2*oneDay]:[today-(oneDay*15) ,today + ganttWidth/2*oneDay]"
     },
     {
       "name": "yearExt",
-      "update": "[data('xExt')[0]['s']-oneDay,data('xExt')[0]['s'] + ganttWidth/0.35*oneDay]"
+      "init": "initDate=='project'? [data('xExt')[0]['s']-oneDay,data('xExt')[0]['s'] + ganttWidth/0.35*oneDay]:[today-(oneDay*180),today + ganttWidth/0.35*oneDay]"
     },
     {
       "name": "allExt",
-      "update": "[data('xExt')[0]['s']-oneDay,data('xExt')[0]['e']+oneDay*9]"
+      "init": "[data('xExt')[0]['s']-oneDay,data('xExt')[0]['e']+oneDay*9]"
     },
     {
       "name": "xExt",
@@ -175,11 +221,11 @@
     },
     {
       "name": "today",
-      "update": "+datetime(year(now()),month(now()),date(now()))"
+      "init": "+datetime(year(now()),month(now()),date(now()))"
     },
     {
       "name": "todayRule",
-      "update": "timeFormat(today,'%m/%d/%y')"
+      "init": "timeFormat(today,'%m/%d/%y')"
     },
     {
       "name": "zoom",
@@ -202,7 +248,7 @@
     },
     {
       "name": "xDom",
-      "update": "xExt",
+      "init": "xExt",
       "on": [
         {
           "events": {
@@ -222,7 +268,25 @@
         },
         {
           "events": "@buttonMarks:click",
-          "update": "datum.text=='All'?allExt:datum.text=='Years'?yearExt:datum.text=='Months'?monthExt:datum.text=='Days'?dayExt:xDom"
+          "update": "datum.name=='All'?allExt:datum.name=='Years'?yearExt:datum.name=='Months'?monthExt:datum.name=='Days'?dayExt:xDom"
+        },
+        {
+          "events": {
+            "signal": "ganttWidth"
+          },
+          "update": "[xDom[0],xDom[0]+((ganttWidth/ganttWidthOld)*span(xDom))]"
+        }
+      ]
+    },
+    {
+      "name": "ganttWidthOld",
+      "init": "ganttWidth",
+      "on": [
+        {
+          "events": {
+            "signal": "showColumns"
+          },
+          "update": "ganttWidth==ganttWidthOld?ganttWidthOld:ganttWidth"
         }
       ]
     },
@@ -248,9 +312,9 @@
         },
         {
           "events": {
-            "signal": "closeAll"
+            "signal": "closeRowsAll"
           },
-          "update": "closeAll?[0, scaledHeight]:yRange"
+          "update": "closeRowsAll?[0, scaledHeight]:yRange"
         }
       ]
     },
@@ -372,7 +436,7 @@
       "on": [
         {
           "events": "@taskSelector:mouseover,@phaseOutline:mouseover,@milestoneSymbols:mouseover,@taskBars:mouseover,@taskNames:mouseover,@taskLabels:mouseover",
-          "update": "{'id': toString(datum.id), 'dependencies':split(datum.dependencies,',')}"
+          "update": "{'id': datum.id, 'dependencies':split(datum.dependencies,',')}"
         },
         {
           "events": "@taskTooltips:mouseover",
@@ -390,7 +454,7 @@
       "on": [
         {
           "events": "@buttonMarks:pointerover",
-          "update": "datum.text?datum.text:''",
+          "update": "datum.name?datum.name:''",
           "force": true
         },
         {
@@ -401,21 +465,32 @@
       ]
     },
     {
-      "name": "closeAll",
+      "name": "showColumns",
+      "update": "initColumnState=='openColumns'?true:false",
       "on": [
         {
           "events": "@buttonMarks:click",
-          "update": "datum.text=='Close'?true:false",
+          "update": "datum.name=='closeColumns'?false:datum.name=='openColumns'?true:showColumns",
           "force": true
         }
       ]
     },
     {
-      "name": "openAll",
+      "name": "closeRowsAll",
       "on": [
         {
           "events": "@buttonMarks:click",
-          "update": "datum.text=='Open'?true:false",
+          "update": "datum.name=='closeRows'?true:false",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "openRowsAll",
+      "on": [
+        {
+          "events": "@buttonMarks:click",
+          "update": "datum.name=='openRows'?true:false",
           "force": true
         }
       ]
@@ -572,18 +647,18 @@
         },
         {
           "trigger": "initPhaseState",
-          "insert": "initPhaseState=='close'? data('phases'):null"
+          "insert": "initPhaseState=='closeRows'? data('phases'):null"
         },
         {
-          "trigger": "closeAll",
+          "trigger": "closeRowsAll",
           "remove": true
         },
         {
-          "trigger": "closeAll",
+          "trigger": "closeRowsAll",
           "insert": "data('phases')"
         },
         {
-          "trigger": "openAll",
+          "trigger": "openRowsAll",
           "remove": true
         }
       ]
@@ -707,7 +782,7 @@
         {
           "type": "formula",
           "as": "start",
-          "expr": "+datetime(year(xDom[0]),month(xDom[0]),date(xDom[0]))   +(oneDay*datum.sequence)"
+          "expr": "(+datetime(year(xDom[0]),month(xDom[0]),date(xDom[0]))-timeoffset)   +(oneDay*datum.sequence)"
         },
         {
           "type": "filter",
@@ -789,7 +864,7 @@
         },
         {
           "type": "filter",
-          "expr": "datum.dependencies!='null' && datum.dependencies!='' && datum.internalDependenciesIndex == -1 "
+          "expr": "datum.dependencies!='null' && datum.dependencies!='' && datum.dependencies!='undefined' && datum.internalDependenciesIndex == -1 "
         },
         {
           "type": "lookup",
@@ -967,35 +1042,59 @@
       "values": [
         {
           "side": "left",
-          "text": "Close",
+          "text": "",
+          "name": "closeRows",
           "x": 15,
-          "leftRadius": 4
+          "leftRadius": 4,
+          "icon": "m0 0-3.6294 3.6294q-.0706.0706-.1206.0806-.05.01-.14-.08t-.095-.13q-.005-.04.0966-.1416l3.5466-3.5466q.1518-.1518.3428-.1518.1908 0 .349.15l3.55 3.55q.07.08.075.12t-.085.13q-.09.09-.13.09t-.1306-.0906l-3.6294-3.6094z"
         },
         {
           "side": "left",
-          "text": "Open",
-          "x": 65,
-          "rightRadius": 4
+          "text": "",
+          "name": "openRows",
+          "x": 45,
+          "rightRadius": 4,
+          "icon": "m0 6 3.63-3.65q.07-.07.135-.07t.135.07q.09.09.09.135t-.09.135l-3.55 3.55q-.08.07-.165.115t-.185.045q-.1 0-.185-.045t-.155-.115l-3.55-3.55q-.08-.07-.065-.135t.085-.135q.09-.09.13-.09t.14.09l3.6 3.65zm0-5.51 3.63-3.65q.07-.07.135-.07t.135.07q.09.09.09.135t-.09.135l-3.55 3.55q-.08.07-.165.115t-.185.045q-.1 0-.185-.045t-.155-.115l-3.55-3.55q-.08-.07-.065-.135t.085-.135q.09-.09.13-.09t.14.09l3.6 3.65z"
+        },
+        {
+          "side": "left",
+          "text": "",
+          "name": "closeColumns",
+          "x": 105,
+          "leftRadius": 4,
+          "icon": "m-1 1 3.63 3.63q.07.07.08.12t-.08.14q-.09.09-.13.095t-.1368-.1018l-3.5432-3.5432q-.08-.078-.12-.159-.04-.081-.04-.185t.04-.185q.04-.081.12-.161l3.5432-3.5432q.0768-.0768.1268-.0818t.14.085q.09.09.09.13t-.09.13l-3.63 3.63z"
+        },
+        {
+          "side": "left",
+          "text": "",
+          "name": "openColumns",
+          "x": 135,
+          "rightRadius": 4,
+          "icon": "m0 1-3.65-3.63q-.08-.07-.075-.135t.075-.135q.09-.09.13-.09t.14.09l3.55 3.55q.07.08.115.165t.045.185q0 .1-.045.185t-.115.155l-3.55 3.55q-.08.08-.135.065t-.115-.085q-.1-.09-.1-.13t.1-.14l3.63-3.6zm4.91 0-3.65-3.63q-.08-.07-.075-.135t.075-.135q.09-.09.13-.09t.14.09l3.55 3.55q.07.08.115.165t.045.185q0 .1-.045.185t-.115.155l-3.55 3.55q-.08.08-.135.065t-.115-.085q-.1-.09-.1-.13t.1-.14l3.63-3.6z"
         },
         {
           "side": "right",
           "text": "All",
+          "name": "All",
           "x": 50,
           "rightRadius": 4
         },
         {
           "side": "right",
           "text": "Years",
+          "name": "Years",
           "x": 100
         },
         {
           "side": "right",
           "text": "Months",
+          "name": "Months",
           "x": 150
         },
         {
           "side": "right",
           "text": "Days",
+          "name": "Days",
           "x": 200,
           "leftRadius": 4
         }
@@ -1019,7 +1118,7 @@
             "signal": "datum.side=='left'?datum.x:columnsWidth+ganttWidth-datum.x"
           },
           "width": {
-            "value": 50
+            "signal": "datum.side=='left'?30:50"
           },
           "y": {
             "value": -60
@@ -1050,27 +1149,35 @@
           },
           "fill": [
             {
-              "test": "indexof( hover,datum.text)>-1",
+              "test": "indexof( hover,datum.name)>-1",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.text=='Close' && data('collapsedPhases').length == data('phases').length",
+              "test": "datum.name=='closeRows' && data('collapsedPhases').length == data('phases').length",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.text=='Open' && data('collapsedPhases').length == 0",
+              "test": "datum.name=='closeColumns' && !showColumns",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.text=='Days' && dayBandwidthRound == minDayBandwidth",
+              "test": "datum.name=='openColumns' && showColumns",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.text=='Months' && dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minDayBandwidth",
+              "test": "datum.name=='openRows' && data('collapsedPhases').length == 0",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.text=='Years' && dayBandwidthRound<minYearBandwidth",
+              "test": "datum.name=='Days' && dayBandwidthRound == minDayBandwidth",
+              "value": "#4e95d9"
+            },
+            {
+              "test": "datum.name=='Months' && dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minDayBandwidth",
+              "value": "#4e95d9"
+            },
+            {
+              "test": "datum.name=='Years' && dayBandwidthRound<minYearBandwidth",
               "value": "#4e95d9"
             },
             {
@@ -1107,11 +1214,11 @@
                   "value": "white"
                 },
                 {
-                  "test": "parent.text=='Close' && data('collapsedPhases').length == data('phases').length",
+                  "test": "parent.text=='closeRows' && data('collapsedPhases').length == data('phases').length",
                   "value": "white"
                 },
                 {
-                  "test": "parent.text=='Open' && data('collapsedPhases').length == 0",
+                  "test": "parent.text=='openRows' && data('collapsedPhases').length == 0",
                   "value": "white"
                 },
                 {
@@ -1132,11 +1239,57 @@
               ]
             }
           }
+        },
+        {
+          "name": "buttonIcons",
+          "interactive": false,
+          "type": "path",
+          "encode": {
+            "update": {
+              "path": {
+                "signal": "parent.icon"
+              },
+              "x": {
+                "signal": "item.mark.group.width/2"
+              },
+              "y": {
+                "signal": "8"
+              },
+              "stroke": [
+                {
+                  "test": "indexof( hover,parent.name)>-1",
+                  "value": "white"
+                },
+                {
+                  "test": "parent.name=='closeColumns' && !showColumns",
+                  "value": "white"
+                },
+                {
+                  "test": "parent.name=='openColumns' && showColumns",
+                  "value": "white"
+                },
+                {
+                  "test": "parent.name=='closeRows' && data('collapsedPhases').length == data('phases').length",
+                  "value": "white"
+                },
+                {
+                  "test": "parent.name=='openRows' && data('collapsedPhases').length == 0",
+                  "value": "white"
+                },
+                {
+                  "value": "#7f7f7f"
+                }
+              ]
+            }
+          }
         }
       ]
     },
     {
       "name": "xDomainText",
+      "data": [
+        {}
+      ],
       "interactive": false,
       "type": "text",
       "encode": {
@@ -1145,16 +1298,16 @@
             "signal": "showDomainSpanLabel?timeFormat(xDom[0],'%m/%d/%y') +' - ' + timeFormat(xDom[1],'%m/%d/%y'):null"
           },
           "baseline": {
-            "value": "top"
+            "value": "bottom"
           },
           "align": {
             "value": "right"
           },
           "x": {
-            "signal": "columnsWidth+ganttWidth"
+            "signal": "columnsWidth+ganttWidth-220"
           },
           "y": {
-            "signal": "showDomainSpanLabel?height+15:0"
+            "signal": "-45"
           },
           "fill": {
             "signal": "textColour"
@@ -1213,11 +1366,17 @@
           "fill": {
             "value": "transparent"
           },
-          "text": {
-            "signal": "datum.task"
-          },
           "fontSize": {
             "value": 11
+          },
+          "text": {
+            "signal": "datum.phase == datum.task?upper(datum.task):datum.task"
+          },
+          "font": {
+            "signal": "datum.phase == datum.task?'Arial':'Segoe UI'"
+          },
+          "fontWeight": {
+            "signal": "datum.phase == datum.task?'bold':'normal'"
           }
         }
       }
@@ -1249,7 +1408,7 @@
             "value": "transparent"
           },
           "tooltip": {
-            "signal": "datum.bounds.x2 - datum.bounds.x1>=taskColumnWidth-16? datum.datum.task:null"
+            "signal": "datum.bounds.x2 - datum.bounds.x1>=taskColumnWidth-columnPadding-16? datum.datum.task:null"
           },
           "cursor": {
             "signal": "datum.datum.phase == datum.datum.task?'pointer':'auto'"
@@ -1265,14 +1424,11 @@
       "name": "columnHolder",
       "style": "cell",
       "layout": {
-        "padding": {
-          "signal": "columnPadding"
-        },
         "bounds": "flush",
         "align": "each"
       },
       "encode": {
-        "enter": {
+        "update": {
           "x": {
             "signal": "0"
           },
@@ -1291,7 +1447,7 @@
         {
           "type": "group",
           "name": "taskColumnWidth",
-          "style": "cell",
+          
           "title": {
             "text": "Task",
             "anchor": "start",
@@ -1302,7 +1458,7 @@
           "encode": {
             "enter": {
               "stroke": {
-                "value": "transparent"
+                "value": ""
               },
               "width": {
                 "signal": "taskColumnWidth"
@@ -1341,10 +1497,10 @@
                     "signal": "datum.phase == datum.task?'bold':'normal'"
                   },
                   "limit": {
-                    "signal": "taskColumnWidth-16"
+                    "signal": "taskColumnWidth-16-columnPadding"
                   },
                   "fill": {
-                    "signal": "toString(datum.id) == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
                   }
                 }
               }
@@ -1358,7 +1514,7 @@
               "encode": {
                 "update": {
                   "fill": {
-                    "signal": "toString(datum.id) == itemHovered.id && datum.phase == datum.task ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):datum.phase == datum.task ?scale('cDark', datum.phase):'transparent'"
+                    "signal": "datum.id == itemHovered.id && datum.phase == datum.task ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):datum.phase == datum.task ?scale('cDark', datum.phase):'transparent'"
                   },
                   "x": {
                     "signal": "sqrt(90)/2"
@@ -1380,12 +1536,20 @@
         {
           "type": "group",
           "name": "startColumnWidth",
-          "style": "cell",
+          
+          "clip": {
+            "signal": "!showColumns"
+          },
           "title": {
-            "text": "Start",
-            "anchor": "end",
+            "text": {
+              "signal": "'Start'"
+            },
+            "anchor": "middle",
+            "dx": {
+              "signal": "-(columnPadding/2)"
+            },
             "frame": "group",
-            "align": "right"
+            "align": "center"
           },
           "encode": {
             "update": {
@@ -1396,7 +1560,7 @@
                 "signal": "height"
               },
               "stroke": {
-                "value": "transparent"
+                "value": ""
               }
             }
           },
@@ -1411,10 +1575,10 @@
               "encode": {
                 "update": {
                   "align": {
-                    "value": "right"
+                    "value": "center"
                   },
                   "x": {
-                    "signal": "startColumnWidth"
+                    "signal": "(startColumnWidth-columnPadding)/2"
                   },
                   "y": {
                     "signal": "scale('y', datum.id)+bandwidth('y')/2"
@@ -1429,7 +1593,7 @@
                     "signal": "datum.phase == datum.task?'bold':'normal'"
                   },
                   "fill": {
-                    "signal": "toString(datum.id) == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
                   }
                 }
               }
@@ -1439,12 +1603,20 @@
         {
           "type": "group",
           "name": "endColumnWidth",
-          "style": "cell",
+          
+          "clip": {
+            "signal": "!showColumns"
+          },
           "title": {
-            "text": "End",
-            "anchor": "end",
+            "text": {
+              "signal": "'End'"
+            },
+            "anchor": "middle",
+            "dx": {
+              "signal": "-(columnPadding/2)"
+            },
             "frame": "group",
-            "align": "right"
+            "align": "center"
           },
           "encode": {
             "update": {
@@ -1470,10 +1642,10 @@
               "encode": {
                 "update": {
                   "align": {
-                    "value": "right"
+                    "value": "center"
                   },
                   "x": {
-                    "signal": "endColumnWidth"
+                    "signal": "(startColumnWidth-columnPadding)/2"
                   },
                   "y": {
                     "signal": "scale('y', datum.id)+bandwidth('y')/2"
@@ -1488,7 +1660,7 @@
                     "signal": "datum.phase == datum.task?'bold':'normal'"
                   },
                   "fill": {
-                    "signal": "toString(datum.id) == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
                   }
                 }
               }
@@ -1498,10 +1670,18 @@
         {
           "type": "group",
           "name": "daysColumnWidth",
-          "style": "cell",
+          
+          "clip": {
+            "signal": "!showColumns"
+          },
           "title": {
-            "text": "Days",
+            "text": {
+              "signal": "'Days'"
+            },
             "anchor": "end",
+            "dx": {
+              "signal": "-columnPadding"
+            },
             "frame": "group",
             "align": "right"
           },
@@ -1532,13 +1712,13 @@
                     "value": "right"
                   },
                   "x": {
-                    "signal": "daysColumnWidth"
+                    "signal": "daysColumnWidth-columnPadding"
                   },
                   "y": {
                     "signal": "scale('y', datum.id)+bandwidth('y')/2"
                   },
                   "text": {
-                    "signal": "datum.days+' d'"
+                    "signal": "format(datum.days,',')+' d'"
                   },
                   "fontWeight": {
                     "signal": "datum.phase == datum.task?'bold':'normal'"
@@ -1547,7 +1727,90 @@
                     "signal": "datum.phase == datum.task?'Arial':'Segoe UI'"
                   },
                   "fill": {
-                    "signal": "toString(datum.id) == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "name": "statusColumn",
+          
+          "clip": {
+            "signal": "!showColumns"
+          },
+          "title": {
+            "text": {
+              "signal": "statusColumnPresent?'Status':''"
+            },
+            "anchor": "middle",
+            "frame": "group",
+            "align": "center"
+          },
+          "encode": {
+            "update": {
+              "width": {
+                "signal": "statusColumnWidth"
+              },
+              "stroke": {
+                "value": "transparent"
+              },
+              "height": {
+                "signal": "height"
+              }
+            }
+          },
+          "marks": [
+            {
+              "type": "symbol",
+              "clip": true,
+              "from": {
+                "data": "yScale"
+              },
+              "encode": {
+                "update": {
+                  "x": {
+                    "signal": "statusColumnWidth/2"
+                  },
+                  "size": {
+                    "signal": "550"
+                  },
+                  "fill": {
+                    "signal": "datum.id == itemHovered.id && isValid(datum.status) && datum.status!='' ?merge(hsl(scale('statusBackground',datum.status)), {l:0.72}):scale('statusBackground',datum.status)"
+                  },
+                  "yc": {
+                    "signal": "(scale('y',datum.id)+bandwidth('y')/2)"
+                  }
+                }
+              }
+            },
+            {
+              "type": "text",
+              "clip": true,
+              "from": {
+                "data": "yScale"
+              },
+              "encode": {
+                "update": {
+                  "baseline": {
+                    "value": "middle"
+                  },
+                  "align": {
+                    "value": "center"
+                  },
+                  "x": {
+                    "signal": "statusColumnWidth/2"
+                  },
+                  "fill": {
+                    "signal": "datum.id == itemHovered.id && isValid(datum.status) && datum.status!='' ?merge(hsl(scale('statusFont',datum.status)), {l:0.20}):scale('statusFont',datum.status)"
+                  },
+                  "y": {
+                    "signal": "(scale('y',datum.id)+bandwidth('y')/2)+1"
+                  },
+                  "text": {
+                    "signal": "scale('statusText',datum.status)"
                   }
                 }
               }
@@ -1557,11 +1820,17 @@
         {
           "type": "group",
           "name": "completionColumn",
-          "style": "cell",
+        
+          "clip": {
+            "signal": "!showColumns"
+          },
           "title": {
-            "text": "Progress",
+            "text": {
+              "signal": "'Progress'"
+            },
             "anchor": "start",
-            "frame": "group"
+            "frame": "group",
+            "align": "left"
           },
           "encode": {
             "update": {
@@ -1589,7 +1858,7 @@
                     "signal": "1"
                   },
                   "width": {
-                    "signal": "item.mark.group.width-2"
+                    "signal": "item.mark.group.width-2-columnPadding"
                   },
                   "stroke": {
                     "signal": "'#a0d786'"
@@ -1621,7 +1890,7 @@
                     "signal": "1"
                   },
                   "width": {
-                    "signal": "(item.mark.group.width/100)*datum.completion"
+                    "signal": "((item.mark.group.width-columnPadding)/100)*datum.completion"
                   },
                   "fill": {
                     "signal": "'#c6ecb5'"
@@ -1825,7 +2094,7 @@
                 "signal": "bandwidth('y')/2"
               },
               "fill": {
-                "signal": "toString(datum.id) == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
+                "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
               },
               "text": {
                 "signal": "datum.milestone?datum.task:datum.task && datum.assignee? datum.task + ' ('+ datum.days+' d'+')' +' - ' + datum.assignee:datum.task + ' ('+ datum.days+' d'+')'"
@@ -1880,7 +2149,7 @@
                 },
                 "update": {
                   "stroke": {
-                    "signal": "toString(datum.id) == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):'#888888'"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):'#888888'"
                   },
                   "strokeWidth": {
                     "signal": "datum.id == itemHovered.id?1.5:1"
@@ -1986,13 +2255,13 @@
                 "signal": "bandwidth('y')-yPaddingInner*2"
               },
               "tooltip": {
-                "signal": "showTooltips&&down==null?{'Phase':datum.phase ,'Task':datum.task , 'Start':timeFormat(datum.start,'%a, %d %B %Y' ),'End':timeFormat(datum.labelEnd,'%a, %d %B %Y' ), 'Days':datum.days, 'Assignee':datum.assignee ,'Progress':datum.completionLabel }:null"
+                "signal": "showTooltips&&down==null?{'Phase':datum.phase ,'Task':datum.task , 'Start':timeFormat(datum.start,'%a, %B %d %Y' ),'End':timeFormat(datum.labelEnd,'%a, %B %d %Y' ), 'Days':datum.days, 'Assignee':datum.assignee ,'Progress':datum.completionLabel }:null"
               },
               "fill": {
-                "signal": "toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1 ?merge(hsl(scale('cLight', datum.phase)), {l:0.65}):scale('cLight', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cLight', datum.phase)), {l:0.65}):scale('cLight', datum.phase)"
               },
               "stroke": {
-                "signal": "toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
               },
               "cornerRadius": {
                 "value": 5
@@ -2001,7 +2270,7 @@
                 "value": 101
               },
               "strokeWidth": {
-                "signal": "toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1 ?1.5:1"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?1.5:1"
               },
               "href": {
                 "field": "hyperlink"
@@ -2107,16 +2376,16 @@
                 "signal": "datum.phasePath"
               },
               "fill": {
-                "signal": "toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1 ?merge(hsl(scale('cLight', datum.phase)), {l:0.65}):scale('cLight', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cLight', datum.phase)), {l:0.65}):scale('cLight', datum.phase)"
               },
               "stroke": {
-                "signal": "toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
               },
               "strokeWidth": {
                 "signal": "datum.id == itemHovered.id?1.5:1"
               },
               "tooltip": {
-                "signal": "showTooltips&&down==null?{'Phase':datum.phase , 'Start':timeFormat(datum.start,'%a, %d %B %Y' ),'End':timeFormat(datum.labelEnd,'%a, %d %B %Y' ), 'Days':datum.days,'Progress':datum.completion+'%' }:null"
+                "signal": "showTooltips&&down==null?{'Phase':datum.phase , 'Start':timeFormat(datum.start,'%a, %B %d %Y' ),'End':timeFormat(datum.labelEnd,'%a, %B %d %Y' ), 'Days':datum.days,'Progress':datum.completion+'%' }:null"
               },
               "cursor": {
                 "value": "pointer"
@@ -2213,16 +2482,16 @@
                 "value": "diamond"
               },
               "fill": {
-                "signal": "(toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1)  && datum.completion > 0 ?merge(hsl(scale( 'cDark', datum.phase)), {l:0.40}):toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1   ?merge(hsl(scale( 'cLight', datum.phase)), {l:0.65}):datum.completion > 0?  scale('cDark', datum.phase):scale('cLight', datum.phase)"
+                "signal": "(datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1)  && datum.completion > 0 ?merge(hsl(scale( 'cDark', datum.phase)), {l:0.40}):datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1   ?merge(hsl(scale( 'cLight', datum.phase)), {l:0.65}):datum.completion > 0?  scale('cDark', datum.phase):scale('cLight', datum.phase)"
               },
               "stroke": {
-                "signal": "toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
               },
               "strokeWidth": {
-                "signal": "toString(datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(datum.id) )> -1  ?1.5:1"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1  ?1.5:1"
               },
               "tooltip": {
-                "signal": "showTooltips&&down==null?{'Phase':datum.phase ,'Task':datum.task , 'Start':timeFormat(datum.start,'%a, %d %B %Y' ),'End':timeFormat(datum.labelEnd,'%a, %d %B %Y' ), 'Days':datum.days,'Assignee':datum.assignee ,'Progress':datum.completionLabel }:null"
+                "signal": "showTooltips&&down==null?{'Phase':datum.phase ,'Task':datum.task , 'Start':timeFormat(datum.start,'%a, %B %d %Y' ),'End':timeFormat(datum.labelEnd,'%a, %B %d %Y' ), 'Days':datum.days,'Assignee':datum.assignee ,'Progress':datum.completionLabel }:null"
               }
             }
           }
@@ -2249,7 +2518,7 @@
                 "signal": "scale('y', datum.id)+bandwidth('y')/2"
               },
               "fill": {
-                "signal": "toString(datum.id) == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):'#6a6a6a'"
+                "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):'#6a6a6a'"
               },
               "size": {
                 "signal": "arrowSymbolSize"
@@ -2259,7 +2528,6 @@
         }
       ]
     },
-  
     {
       "name": "taskSelector",
       "description": "Hidden rect to support phase expand and collapse",
@@ -2298,10 +2566,10 @@
     {
       "type": "group",
       "name": "axisClipper",
-      "style": "cell",
+
       "clip": true,
       "encode": {
-        "enter": {
+        "update": {
           "width": {
             "signal": "columnsWidth"
           },
@@ -2520,7 +2788,7 @@
       "name": "cDark",
       "type": "ordinal",
       "range": {
-        "signal": "coloursDark"
+        "signal": "colours.dark"
       },
       "domain": {
         "data": "input",
@@ -2531,11 +2799,41 @@
       "name": "cLight",
       "type": "ordinal",
       "range": {
-        "signal": "coloursLight"
+        "signal": "colours.light"
       },
       "domain": {
         "data": "input",
         "field": "phase"
+      }
+    },
+    {
+      "name": "statusText",
+      "type": "ordinal",
+      "range": {
+        "signal": "statusColumn.range"
+      },
+      "domain": {
+        "signal": "statusColumn.domain"
+      }
+    },
+    {
+      "name": "statusFont",
+      "type": "ordinal",
+      "range": {
+        "signal": "statusColumn.font"
+      },
+      "domain": {
+        "signal": "statusColumn.domain"
+      }
+    },
+    {
+      "name": "statusBackground",
+      "type": "ordinal",
+      "range": {
+        "signal": "statusColumn.background"
+      },
+      "domain": {
+        "signal": "statusColumn.domain"
       }
     }
   ],
