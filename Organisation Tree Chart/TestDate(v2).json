@@ -1,7 +1,9 @@
 [
   {
-    "Job Title": "Chief Executive Officer",
+    "ID": "1",
+    "Parent ID": "",
     "Name": "Sam Bentley",
+    "Job Title": "Chief Executive Officer",
     "Company": "KBR",
     "Directorate": "Executive",
     "Functional Area": "",
@@ -9,14 +11,14 @@
     "Full Time/Seasonal": "Full Time",
     "Deployment": "TRUE",
     "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "1",
-    "Parent ID": ""
+    "Winter": "TRUE"
   },
 
   {
-    "Job Title": "Director of Business Systems",
+    "ID": "2",
+    "Parent ID": "1",
     "Name": "Alex Morgan",
+    "Job Title": "Director of Business Systems",
     "Company": "KBR",
     "Directorate": "Business Systems",
     "Functional Area": "Enterprise Applications",
@@ -24,13 +26,13 @@
     "Full Time/Seasonal": "Full Time",
     "Deployment": "FALSE",
     "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "2",
-    "Parent ID": "1"
+    "Winter": "TRUE"
   },
   {
-    "Job Title": "Director of Operations",
+    "ID": "3",
+    "Parent ID": "1",
     "Name": "Jordan Lee",
+    "Job Title": "Director of Operations",
     "Company": "KBR",
     "Directorate": "Operations",
     "Functional Area": "Field Operations",
@@ -38,28 +40,14 @@
     "Full Time/Seasonal": "Full Time",
     "Deployment": "TRUE",
     "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "3",
-    "Parent ID": "1"
+    "Winter": "TRUE"
   },
+
   {
-    "Job Title": "Director of IT",
-    "Name": "Taylor Nguyen",
-    "Company": "KBR",
-    "Directorate": "Information Technology",
-    "Functional Area": "Infrastructure",
-    "Location": "Alabama",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "FALSE",
-    "Summer": "TRUE",
-    "Winter": "TRUE",
     "ID": "4",
-    "Parent ID": "1"
-  },
-
-  {
-    "Job Title": "Systems Manager",
+    "Parent ID": "2",
     "Name": "Chris Alvarez",
+    "Job Title": "Systems Manager",
     "Company": "KBR",
     "Directorate": "Business Systems",
     "Functional Area": "Enterprise Applications",
@@ -67,84 +55,13 @@
     "Full Time/Seasonal": "Full Time",
     "Deployment": "FALSE",
     "Summer": "TRUE",
-    "Winter": "TRUE",
+    "Winter": "TRUE"
+  },
+  {
     "ID": "5",
-    "Parent ID": "2"
-  },
-  {
-    "Job Title": "Data Platforms Manager",
-    "Name": "Riley Chen",
-    "Company": "KBR",
-    "Directorate": "Business Systems",
-    "Functional Area": "Data & Analytics",
-    "Location": "Florida",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "FALSE",
-    "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "6",
-    "Parent ID": "2"
-  },
-  {
-    "Job Title": "Field Operations Manager",
+    "Parent ID": "3",
     "Name": "Morgan Patel",
-    "Company": "KBR",
-    "Directorate": "Operations",
-    "Functional Area": "Field Operations",
-    "Location": "Kuwait",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "TRUE",
-    "Summer": "TRUE",
-    "Winter": "FALSE",
-    "ID": "7",
-    "Parent ID": "3"
-  },
-  {
-    "Job Title": "IT Services Manager",
-    "Name": "Dana Scott",
-    "Company": "KBR",
-    "Directorate": "Information Technology",
-    "Functional Area": "Service Delivery",
-    "Location": "Alabama",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "FALSE",
-    "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "8",
-    "Parent ID": "4"
-  },
-
-  {
-    "Job Title": "Application Team Lead",
-    "Name": "Jamie Rivera",
-    "Company": "KBR",
-    "Directorate": "Business Systems",
-    "Functional Area": "Enterprise Applications",
-    "Location": "Texas",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "FALSE",
-    "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "9",
-    "Parent ID": "5"
-  },
-  {
-    "Job Title": "BI Team Lead",
-    "Name": "Casey Brooks",
-    "Company": "KBR",
-    "Directorate": "Business Systems",
-    "Functional Area": "Data & Analytics",
-    "Location": "Florida",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "FALSE",
-    "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "10",
-    "Parent ID": "6"
-  },
-  {
-    "Job Title": "Field Team Lead",
-    "Name": "Avery Johnson",
+    "Job Title": "Field Operations Manager",
     "Company": "KBR",
     "Directorate": "Operations",
     "Functional Area": "Field Operations",
@@ -152,27 +69,14 @@
     "Full Time/Seasonal": "Full Time",
     "Deployment": "TRUE",
     "Summer": "TRUE",
-    "Winter": "FALSE",
-    "ID": "11",
-    "Parent ID": "7"
+    "Winter": "FALSE"
   },
+
   {
-    "Job Title": "IT Support Lead",
-    "Name": "Parker White",
-    "Company": "KBR",
-    "Directorate": "Information Technology",
-    "Functional Area": "Service Delivery",
-    "Location": "Alabama",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "FALSE",
-    "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "12",
-    "Parent ID": "8"
-  },
-  {
+    "ID": "6",
+    "Parent ID": "4",
+    "Name": "Employee A",
     "Job Title": "Business Systems Analyst",
-    "Name": "Employee 1",
     "Company": "KBR",
     "Directorate": "Business Systems",
     "Functional Area": "Enterprise Applications",
@@ -180,52 +84,94 @@
     "Full Time/Seasonal": "Full Time",
     "Deployment": "FALSE",
     "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "13",
-    "Parent ID": "9"
-  },
-  {
-    "Job Title": "Power BI Developer",
-    "Name": "Employee 2",
-    "Company": "KBR",
-    "Directorate": "Business Systems",
-    "Functional Area": "Data & Analytics",
-    "Location": "Florida",
-    "Full Time/Seasonal": "Full Time",
-    "Deployment": "FALSE",
-    "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "14",
-    "Parent ID": "10"
+    "Winter": "TRUE"
   },
 
   {
-    "Job Title": "Field Engineer",
-    "Name": "Employee 3",
+    "ID": "100",
+    "Parent ID": "",
+    "Name": "Jamie Collins",
+    "Job Title": "Program Executive",
     "Company": "KBR",
-    "Directorate": "Operations",
-    "Functional Area": "Field Operations",
-    "Location": "Iraq",
-    "Full Time/Seasonal": "Seasonal",
-    "Deployment": "TRUE",
-    "Summer": "TRUE",
-    "Winter": "FALSE",
-    "ID": "15",
-    "Parent ID": "11"
-  },
-
-  {
-    "Job Title": "IT Support Specialist",
-    "Name": "Employee 4",
-    "Company": "KBR",
-    "Directorate": "Information Technology",
-    "Functional Area": "Service Delivery",
+    "Directorate": "Programs",
+    "Functional Area": "",
     "Location": "Alabama",
     "Full Time/Seasonal": "Full Time",
     "Deployment": "FALSE",
     "Summer": "TRUE",
-    "Winter": "TRUE",
-    "ID": "16",
-    "Parent ID": "12"
+    "Winter": "TRUE"
+  },
+
+  {
+    "ID": "101",
+    "Parent ID": "100",
+    "Name": "Taylor Nguyen",
+    "Job Title": "Program Director",
+    "Company": "KBR",
+    "Directorate": "Programs",
+    "Functional Area": "Mission Support",
+    "Location": "Alabama",
+    "Full Time/Seasonal": "Full Time",
+    "Deployment": "FALSE",
+    "Summer": "TRUE",
+    "Winter": "TRUE"
+  },
+  {
+    "ID": "102",
+    "Parent ID": "100",
+    "Name": "Riley Chen",
+    "Job Title": "Deputy Program Director",
+    "Company": "KBR",
+    "Directorate": "Programs",
+    "Functional Area": "Strategy",
+    "Location": "Virginia",
+    "Full Time/Seasonal": "Full Time",
+    "Deployment": "FALSE",
+    "Summer": "TRUE",
+    "Winter": "TRUE"
+  },
+
+  {
+    "ID": "103",
+    "Parent ID": "101",
+    "Name": "Dana Scott",
+    "Job Title": "Mission Support Manager",
+    "Company": "KBR",
+    "Directorate": "Programs",
+    "Functional Area": "Mission Support",
+    "Location": "Alabama",
+    "Full Time/Seasonal": "Full Time",
+    "Deployment": "FALSE",
+    "Summer": "TRUE",
+    "Winter": "TRUE"
+  },
+  {
+    "ID": "104",
+    "Parent ID": "102",
+    "Name": "Avery Johnson",
+    "Job Title": "Strategy Lead",
+    "Company": "KBR",
+    "Directorate": "Programs",
+    "Functional Area": "Strategy",
+    "Location": "Virginia",
+    "Full Time/Seasonal": "Full Time",
+    "Deployment": "FALSE",
+    "Summer": "TRUE",
+    "Winter": "TRUE"
+  },
+
+  {
+    "ID": "105",
+    "Parent ID": "103",
+    "Name": "Employee B",
+    "Job Title": "Mission Analyst",
+    "Company": "KBR",
+    "Directorate": "Programs",
+    "Functional Area": "Mission Support",
+    "Location": "Alabama",
+    "Full Time/Seasonal": "Full Time",
+    "Deployment": "FALSE",
+    "Summer": "TRUE",
+    "Winter": "TRUE"
   }
 ]
