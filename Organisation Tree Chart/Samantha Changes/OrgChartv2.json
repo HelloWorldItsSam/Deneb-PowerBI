@@ -1,0 +1,673 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "Zoomable, collapsable tree by David Bacci: https://www.linkedin.com/in/davbacci/",
+  "width": {"signal": "900"},
+  "height": {"signal": "570"},
+  "background": "#d4e7f7",
+  "autosize": "pad",
+  "padding": 10,
+  "signals": [
+    {"name": "nodeWidth", "value": 200},
+    {"name": "nodeHeight", "value": 45},
+    {
+      "name": "showTooltips",
+      "value": true
+    },
+
+    {
+      "name": "hoverNode",
+      "value": null,
+      "on": [
+        { "events": { "type": "mouseover", "markname": "node" }, "update": "datum" },
+        { "events": { "type": "mouseout", "markname": "node" }, "update": "null" }
+      ]
+    },
+    
+
+    {
+      "name": "collapseDepth",
+      "value": 1
+    },
+    {
+      "name": "resetPerm",
+      "value": 1,
+      "on": [
+        {
+          "events": [
+            {"type": "click", "markname": "showAllBtnRect"},
+            {"type": "click", "markname": "showAllBtnText"}
+          ],
+          "update": "showAll ? resetPerm + 1 : resetPerm"
+        }
+      ]
+    },
+    {
+      "name": "showAll",
+      "value": false,
+      "on": [
+        {
+          "events": [
+            {"type": "click", "markname": "showAllBtnRect"},
+            {"type": "click", "markname": "showAllBtnText"}
+          ],
+          "update": "!showAll"
+        }
+      ]
+    },
+    {
+      "name": "startingDepth",
+      "value": 1,
+      "on": [
+        {
+          "events": {"type": "timer", "throttle": 0},
+          "update": "-1"
+        }
+      ]
+    },
+    {
+      "name": "node",
+      "value": 0,
+      "on": [
+        {
+          "events": {"type": "click", "markname": "node"},
+          "update": "datum.id"
+        },
+        {
+          "events": {"type": "timer", "throttle": 10},
+          "update": "0"
+        }
+      ]
+    },
+    {
+      "name": "nodeHighlight",
+      "value": "[0]",
+      "on": [
+        {
+          "events": {"type": "mouseover", "markname": "node"},
+          "update": "pluck(treeAncestors('treeCalcs', datum.id), 'id')"
+        },
+        {
+          "events": {"type": "mouseout"},
+          "update": "[0]"
+        }
+      ]
+    },
+    {
+      "name": "zoomLevel",
+      "value": 1,
+      "bind": {"input": "range", "min": 0.5, "max": 2.5, "step": 0.001, "name": "Zoom"},
+      "on": [
+        {
+          "events": "wheel!",
+          "force": true,
+          "update": "round(clamp(zoomLevel * pow(1.001, -event.deltaY * pow(16, event.deltaMode)), 0.25, 3) * 1000) / 1000"
+        },
+        {
+          "events": "dblclick",
+          "update": "1"
+        }
+      ]
+    },
+    {
+      "name": "zoomLabel",
+      "update": "'Zoom: ' + format(zoomLevel *100, '.0f')+'%'"
+    },
+    {
+      "name": "zoomAnchor",
+      "update": "[ (xdom[0] + xdom[1]) / 2, (ydom[0] + ydom[1]) / 2 ]"
+    },
+    {
+      "name": "isExpanded",
+      "value": 0,
+      "on": [
+        {
+          "events": {"type": "click", "markname": "node"},
+          "update": "showAll ? true : (datum.children > 0 && indata('treeClickStorePerm', 'id', datum.childrenIds[0]) ? true : false)"
+        }
+      ]
+    },
+    {"name": "xrange", "update": "[0, width]"},
+    {"name": "yrange", "update": "[0, height]"},
+  {
+      "name": "down",
+      "value": null,
+      "on": [
+        { "events": "mousedown", "update": "xy()" },
+        { "events": { "source": "window", "type": "mouseup" }, "update": "null" }
+      ]
+    },
+    {
+      "name": "xcur",
+      "value": null,
+      "on": [{"events": "mousedown", "update": "slice(xdom)"}]
+    },
+    {
+      "name": "ycur",
+      "value": null,
+      "on": [{"events": "mousedown", "update": "slice(ydom)"}]
+    },
+    {
+      "name": "delta",
+      "value": [0, 0],
+      "on": [
+        {
+          "events": [
+            {
+              "source": "window",
+              "type": "mousemove",
+              "consume": true,
+              "between": [{"type": "mousedown"}, {"source": "window", "type": "mouseup"}]
+            }
+          ],
+          "update": "down ? [down[0]-x(), down[1]-y()] : [0,0]"
+        }
+      ]
+    },
+    {
+      "name": "anchor",
+      "value": [0, 0],
+      "on": [
+        {
+          "events": "wheel",
+          "update": "[invert('xscale', x()), invert('yscale', y())]"
+        }
+      ]
+    },
+    {"name": "xext", "update": "[0,width]"},
+    {"name": "yext", "update": "[0,height]"},
+    {
+      "name": "xdom",
+      "update": "slice(xext)",
+      "on": [
+        {
+          "events": {"signal": "delta"},
+          "update": "[xcur[0] + span(xcur) * delta[0] / width, xcur[1] + span(xcur) * delta[0] / width]"
+        },
+        {"events": "dblclick", "update": "[0,width]"},
+        {
+          "events": {"signal": "zoomLevel"},
+          "update": "[(zoomAnchor[0]) - (span(xext)/zoomLevel)/2, (zoomAnchor[0]) + (span(xext)/zoomLevel)/2]"
+        }
+      ]
+    },
+    {
+      "name": "ydom",
+      "update": "slice(yext)",
+      "on": [
+        {
+          "events": {"signal": "delta"},
+          "update": "[ycur[0] + span(ycur) * delta[1] / height, ycur[1] + span(ycur) * delta[1] / height]"
+        },
+        {"events": "dblclick", "update": "[0,height]"},
+        {
+          "events": {"signal": "zoomLevel"},
+          "update": "[(zoomAnchor[1]) - (span(yext)/zoomLevel)/2, (zoomAnchor[1]) + (span(yext)/zoomLevel)/2]"
+        }
+      ]
+    },
+    {"name": "scaledNodeWidth", "update": "(nodeWidth/ span(xdom))*width"},
+    {"name": "scaledNodeHeight", "update": "abs(nodeHeight/ span(ydom))*height"},
+    {"name": "scaledFont13", "update": "(13/ span(xdom))*width"},
+    {"name": "scaledFont12", "update": "(12/ span(xdom))*width"},
+    {"name": "scaledFont11", "update": "(11/ span(xdom))*width"},
+    {"name": "scaledLimit", "update": "(20/ span(xdom))*width"}
+
+  ],
+  "data": [
+    {"name": "dataset"},
+    {"name": "source", "source": "dataset"},
+
+    {
+      "name": "treeCalcs",
+      "source": "source",
+      "transform": [
+        {"type": "formula", "as": "id", "expr": "toString(datum['ID'])"},
+        {
+          "type": "formula",
+          "as": "parent",
+          "expr": "datum['Parent ID'] == null || datum['Parent ID'] == '' ? null : toString(datum['Parent ID'])"
+        },
+        {"type": "stratify", "key": "id", "parentKey": "parent"},
+        {
+          "type": "tree",
+          "method": {"signal": "'tidy'"},
+          "separation": {"signal": "false"},
+          "as": ["y", "x", "depth", "children"]
+        }
+      ]
+    },
+    {
+      "name": "initStore",
+      "source": "treeCalcs",
+      "transform": [
+        {"type": "filter", "expr": "datum.depth <= collapseDepth"},
+        {"type": "project", "fields": ["id", "parent", "x", "y", "depth", "children"]},
+        {
+          "type": "aggregate",
+          "fields": ["id"],
+          "ops": ["min"],
+          "groupby": ["id", "parent", "x", "y", "depth", "children"]
+        }
+      ]
+    },
+
+    {
+      "name": "childCounts",
+      "source": "source",
+      "transform": [
+        {
+          "type": "formula",
+          "as": "parent",
+          "expr": "datum['Parent ID'] == null || datum['Parent ID'] == '' ? null : toString(datum['Parent ID'])"
+        },
+        {"type": "aggregate", "groupby": ["parent"], "ops": ["count"], "fields": ["parent"], "as": ["childCount"]}
+      ]
+    },
+    {
+      "name": "treeChildren",
+      "source": "treeCalcs",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["parent"],
+          "fields": ["parent"],
+          "ops": ["values"],
+          "as": ["childrenObjects"]
+        },
+        {"type": "formula", "expr": "pluck(datum.childrenObjects,'id')", "as": "childrenIds"}
+      ]
+    },
+    {
+      "name": "treeAncestors",
+      "source": "treeCalcs",
+      "transform": [
+        {"type": "formula", "as": "treeAncestors", "expr": "treeAncestors('treeCalcs', datum.id, 'root')"},
+        {"type": "flatten", "fields": ["treeAncestors"]},
+        {"type": "formula", "expr": "datum.treeAncestors.parent", "as": "allParents"}
+      ]
+    },
+    {
+      "name": "treeChildrenAll",
+      "source": "treeAncestors",
+      "transform": [
+        {"type": "project", "fields": ["id", "parent", "x", "y", "depth", "children", "Name", "Job Title"]},
+        {
+          "type": "aggregate",
+          "fields": ["parent", "parent", "id"],
+          "ops": ["values", "count", "min"],
+          "groupby": ["allParents"],
+          "as": ["allChildrenObjects", "allChildrenCount", "id"]
+        },
+        {"type": "formula", "expr": "pluck(datum.allChildrenObjects,'id')", "as": "allChildrenIds"}
+      ]
+    },
+    {
+      "name": "treeClickStoreTemp",
+      "source": "treeAncestors",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "showAll ? true : (startingDepth != -1 ? datum.depth <= startingDepth : (node == 0 ? datum.depth <= 1 : (!isExpanded ? datum.parent == node : datum.allParents == node)))"
+        },
+        {"type": "project", "fields": ["id", "name", "parent", "x", "y", "depth", "children"]},
+        {"type": "aggregate", "fields": ["id"], "ops": ["min"], "groupby": ["id", "name", "parent", "x", "y", "depth", "children"]}
+      ]
+    },
+    {
+  "name": "treeClickStorePerm",
+  "values": [],
+  "on": [
+    {
+      "trigger": "startingDepth >= 0",
+      "insert": "data('initStore')"
+    },
+
+    {
+      "trigger": "resetPerm",
+      "remove": "true"
+    },
+    {
+      "trigger": "resetPerm",
+      "insert": "data('initStore')"
+    },
+
+    {
+      "trigger": "node",
+      "insert": "!showAll && !isExpanded ? data('treeClickStoreTemp') : false"
+    },
+    {
+      "trigger": "node",
+      "remove": "!showAll && isExpanded ? data('treeClickStoreTemp') : false"
+    }
+  ]
+},
+
+    {
+      "name": "treeLayout",
+      "source": "source",
+      "transform": [
+        {"type": "formula", "as": "id", "expr": "toString(datum['ID'])"},
+        {
+          "type": "formula",
+          "as": "parent",
+          "expr": "datum['Parent ID'] == null || datum['Parent ID'] == '' ? null : toString(datum['Parent ID'])"
+        },
+        {"type": "filter", "expr": "showAll || indata('treeClickStorePerm', 'id', datum.id)"},
+        {"type": "stratify", "key": "id", "parentKey": "parent"},
+        {
+          "type": "tree",
+          "method": {"signal": "'tidy'"},
+          "nodeSize": [{"signal": "nodeHeight+10"}, {"signal": "nodeWidth+140"}],
+          "separation": {"signal": "false"},
+          "as": ["y", "x", "depth", "children"]
+        },
+        {"type": "formula", "expr": "datum.y+(height/2)", "as": "y"}
+      ]
+    },
+    {
+      "name": "fullTreeLayout",
+      "source": "treeLayout",
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "treeChildren",
+          "key": "parent",
+          "fields": ["id"],
+          "values": ["childrenObjects", "childrenIds"]
+        },
+        {
+          "type": "lookup",
+          "from": "treeChildrenAll",
+          "key": "allParents",
+          "fields": ["id"],
+          "values": ["allChildrenIds", "allChildrenObjects"]
+        },
+        {"type": "lookup", "from": "treeCalcs", "key": "id", "fields": ["id"], "values": ["children"]},
+        {
+          "type": "formula",
+          "expr": "reverse(pluck(treeAncestors('treeCalcs', datum.id), 'id'))[1]",
+          "as": "treeParent"
+        }
+      ]
+    },
+    {
+      "name": "visibleNodes",
+      "source": "fullTreeLayout",
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "childCounts",
+          "key": "parent",
+          "fields": ["id"],
+          "values": ["childCount"]
+        },
+        {
+          "type": "formula",
+          "as": "childCount",
+          "expr": "datum.childCount == null ? 0 : datum.childCount"
+        }
+      ]
+    },
+    {
+      "name": "maxWidthAndHeight",
+      "source": "visibleNodes",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["depth"],
+          "fields": ["depth", "x", "y"],
+          "ops": ["count", "max", "max"],
+          "as": ["count", "x", "y"]
+        },
+        {
+          "type": "aggregate",
+          "fields": ["depth", "count", "x", "y"],
+          "ops": ["max", "max", "max", "max"],
+          "as": ["maxDepth", "maxNodes", "maxX", "maxY"]
+        }
+      ]
+    },
+    {
+      "name": "links",
+      "source": "treeLayout",
+      "transform": [
+        {"type": "treelinks"},
+        {
+          "type": "linkpath",
+          "orient": "horizontal",
+          "shape": "diagonal",
+          "sourceY": {"expr": "scale('yscale', datum.source.y)"},
+          "sourceX": {"expr": "scale('xscale', datum.source.x+nodeWidth)"},
+          "targetY": {"expr": "scale('yscale', datum.target.y)"},
+          "targetX": {"expr": "scale('xscale', datum.target.x)"}
+        },
+        {"type": "filter", "expr": "showAll || indata('treeClickStorePerm', 'id', datum.target.id)"}
+      ]
+    }
+  ],
+  "scales": [
+    {"name": "xscale", "zero": false, "domain": {"signal": "xdom"}, "range": {"signal": "xrange"}},
+    {"name": "yscale", "zero": false, "domain": {"signal": "ydom"}, "range": {"signal": "yrange"}},
+    {
+      "name": "colour",
+      "type": "ordinal",
+      "range": ["#6f6f6f", "#4472C4", "#3A8E50", "#ED7D31", "#a63939", "#6338a6", "#3843a6", "#38a695"],
+      "domain": {"data": "visibleNodes", "field": "Directorate"}
+    }
+  ],
+  "marks": [
+    {
+      "type": "path",
+      "interactive": false,
+      "from": {"data": "links"},
+      "encode": {
+        "update": {
+          "path": {"field": "path"},
+          "strokeWidth": {"signal": "indexof(nodeHighlight, datum.target.id)> -1? 2.5:0.4"},
+          "stroke": {"scale": "colour", "field": "target.Directorate"}
+        }
+      }
+    },
+    {
+      "type": "group",
+      "encode": {"update": {"x": {"value": 10}, "y": {"value": 55}}},
+      "marks": [
+        {
+          "name": "showAllBtnRect",
+          "type": "rect",
+          "encode": {
+            "update": {
+              "width": {"value": 120},
+              "height": {"value": 28},
+              "cornerRadius": {"value": 6},
+              "fill": {"signal": "showAll ? '#2E7D32' : '#424242'"},
+              "cursor": {"value": "pointer"}
+            }
+          }
+        },
+        {
+          "name": "showAllBtnText",
+          "type": "text",
+          "encode": {
+            "update": {
+              "x": {"value": 60},
+              "y": {"value": 14},
+              "align": {"value": "center"},
+              "baseline": {"value": "middle"},
+              "fontSize": {"value": 12},
+              "fill": {"value": "white"},
+              "text": {"signal": "showAll ? 'Collapse All' : 'Show All'"},
+              "cursor": {"value": "pointer"}
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "zoomBox",
+      "type": "group",
+      "encode": {"update": {"x": {"value": 10}, "y": {"value": 10}}},
+      "marks": [
+        {
+          "type": "rect",
+          "encode": {
+            "update": {
+              "width": {"value": 100},
+              "height": {"value": 36},
+              "cornerRadius": {"value": 8},
+              "fill": {"value": "white"},
+              "stroke": {"value": "#BDBDBD"},
+              "strokeWidth": {"value": 1}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "encode": {
+            "update": {
+              "x": {"value": 10},
+              "y": {"value": 18},
+              "align": {"value": "left"},
+              "baseline": {"value": "middle"},
+              "fontSize": {"value": 12},
+              "fill": {"value": "#212121"},
+              "text": {"signal": "zoomLabel"}
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "node",
+      "description": "The parent node",
+      "type": "group",
+      "clip": false,
+      "from": {"data": "visibleNodes"},
+      "encode": {
+        "update": {
+          "x": {"field": "x", "scale": "xscale"},
+          "yc": {"field": "y", "scale": "yscale"},
+          "width": {"signal": "scaledNodeWidth"},
+          "height": {"signal": "scaledNodeHeight"},
+          "fill": {"signal": "merge(hsl(scale('colour', datum.Directorate)), {l:0.94})"},
+          "stroke": {"signal": "merge(hsl(scale('colour', datum.Directorate)), {l:0.79})"},
+          "cornerRadius": {"value": 2},
+          "cursor": {"signal": "datum.children>0?'pointer':''"}
+          // ,
+          // "tooltip": {
+          //   "signal": "showTooltips && down==null ? {'Name': datum['Name'], 'Job Title': datum['Job Title'], 'Company': datum['Company'], 'Directorate': datum['Directorate'], 'Functional Area': datum['Functional Area'], 'Location': datum['Location'], 'Employment': datum['Full Time/Seasonal'], 'Deployment': datum['Deployment'], 'Summer': datum['Summer'], 'Winter': datum['Winter']} : null"
+          // }
+
+        }
+        
+      },
+      "marks": [
+        {
+          "name": "infoHotspot",
+          "type": "rect",
+          "encode": {
+            "update": {
+              "x": {"signal": "item.mark.group.width - (18/ span(xdom))*width"},
+              "y": {"signal": "(4/ span(xdom))*width"},
+              "width": {"signal": "(14/ span(xdom))*width"},
+              "height": {"signal": "(14/ span(xdom))*width"},
+              "cornerRadius": {"signal": "(3/ span(xdom))*width"},
+              "fill": {"value": "transparent"},
+              "stroke": {"value": "transparent"},
+              "cursor": {"value": "help"},
+              "tooltip": {
+                "signal": "showTooltips && down==null ? {'Name': parent['Name'], 'Job Title': parent['Job Title'], 'Company': parent['Company'], 'Directorate': parent['Directorate'], 'Functional Area': parent['Functional Area'], 'Location': parent['Location'], 'Employment': parent['Full Time/Seasonal'], 'Deployment': parent['Deployment'], 'Summer': parent['Summer'], 'Winter': parent['Winter']} : null"
+              }
+            }
+          }
+        },
+        {
+          "type": "text",
+          "name": "infoIcon",
+          "encode": {
+            "update": {
+              "x": {"signal": "item.mark.group.width - (11/ span(xdom))*width"},
+              "y": {"signal": "(11/ span(xdom))*width"},
+              "text": {"value": "i"},
+              "align": {"value": "center"},
+              "baseline": {"value": "middle"},
+              "fontSize": {"signal": "(10/ span(xdom))*width"},
+              "fill": {"value": "#6f6f6f"},
+              "cursor": {"value": "help"},
+              "opacity": {"value": 0.8}
+            }
+          }
+        },
+
+
+        {
+          "name": "highlight",
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "update": {
+              "x": {"signal": "item.mark.group.x1"},
+              "y": {"signal": "0"},
+              "fill": {"signal": "indexof(nodeHighlight, parent.id)> -1? merge(hsl(scale('colour', parent.treeParent)), {l:0.82}):0"},
+              "height": {"signal": "item.mark.group.height"},
+              "width": {"signal": "item.mark.group.width"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "interactive": false,
+          "name": "name",
+          "encode": {
+            "update": {
+              "x": {"signal": "(10/ span(xdom))*width"},
+              "y": {"signal": "(6/ span(xdom))*width"},
+              "fontWeight": {"value": "600"},
+              "baseline": {"value": "top"},
+              "fill": {"scale": "colour", "signal": "parent.Directorate"},
+              "text": {"signal": "parent['Name']"},
+              "fontSize": {"signal": "scaledFont13"},
+              "limit": {"signal": "scaledNodeWidth-scaledLimit"},
+              "font": {"value": "Calibri"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "interactive": false,
+          "name": "title",
+          "encode": {
+            "update": {
+              "x": {"signal": "(10/ span(xdom))*width"},
+              "y": {"signal": "(22/ span(xdom))*width"},
+              "align": {"value": "left"},
+              "baseline": {"value": "top"},
+              "fill": {"signal": "'#4D4B44'"},
+              "text": {"signal": "parent['Job Title']"},
+              "fontSize": {"signal": "scaledFont11"},
+              "limit": {"signal": "scaledNodeWidth-scaledLimit"},
+              "font": {"value": "Calibri"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "interactive": false,
+          "name": "node children",
+          "encode": {
+            "update": {
+              "x": {"signal": "item.mark.group.width - (9/ span(xdom))*width"},
+              "y": {"signal": "item.mark.group.height/2"},
+              "align": {"value": "right"},
+              "baseline": {"value": "middle"},
+              "fill": {"scale": "colour", "signal": "parent.Directorate"},
+              "text": {"signal": "parent.childCount > 0 ? parent.childCount : ''"},
+              "fontSize": {"signal": "scaledFont12"},
+              "font": {"value": "Calibri"}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
